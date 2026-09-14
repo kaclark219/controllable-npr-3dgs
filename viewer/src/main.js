@@ -2,9 +2,7 @@ import './style.css';
 import * as THREE from 'three';
 import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
-/*
- * Gaussian viewer
- */
+// gaussian viewer config
 const viewer = new GaussianSplats3D.Viewer({
   cameraUp: [0, -1, -0.6],
   initialCameraPosition: [-1, -4, 6],
@@ -21,12 +19,7 @@ const viewer = new GaussianSplats3D.Viewer({
 
 window.gaussianViewer = viewer;
 
-/*
- * Palette state
- *
- * All colors begin as white placeholders.
- * Palette mapping remains disabled until the user edits all five.
- */
+// palette state .. so the scene isn't changed until all five colors are configured
 const palette = Array.from(
   { length: 5 },
   () => new THREE.Vector3(1, 1, 1)
@@ -34,108 +27,7 @@ const palette = Array.from(
 
 const paletteConfigured = Array(5).fill(false);
 
-/*
- * Render target containing the original Gaussian scene.
- */
-const renderTarget = new THREE.WebGLRenderTarget(
-  window.innerWidth,
-  window.innerHeight
-);
-
-/*
- * Full-screen palette shader.
- */
-const postScene = new THREE.Scene();
-
-const postCamera = new THREE.OrthographicCamera(
-  -1,
-  1,
-  1,
-  -1,
-  0,
-  1
-);
-
-const paletteMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    tDiffuse: {
-      value: renderTarget.texture,
-    },
-
-    palette: {
-      value: palette,
-    },
-
-    /*
-     * Start at zero so the original scene is displayed.
-     */
-    strength: {
-      value: 0.0,
-    },
-  },
-
-  vertexShader: `
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      gl_Position = vec4(position, 1.0);
-    }
-  `,
-
-  fragmentShader: `
-    uniform sampler2D tDiffuse;
-    uniform vec3 palette[5];
-    uniform float strength;
-
-    varying vec2 vUv;
-
-    void main() {
-      vec4 original = texture2D(tDiffuse, vUv);
-
-      vec3 closestColor = palette[0];
-
-      float closestDistance = distance(
-        original.rgb,
-        palette[0]
-      );
-
-      for (int i = 1; i < 5; i++) {
-        float candidateDistance = distance(
-          original.rgb,
-          palette[i]
-        );
-
-        if (candidateDistance < closestDistance) {
-          closestDistance = candidateDistance;
-          closestColor = palette[i];
-        }
-      }
-
-      vec3 finalColor = mix(
-        original.rgb,
-        closestColor,
-        strength
-      );
-
-      gl_FragColor = vec4(
-        finalColor,
-        original.a
-      );
-    }
-  `,
-});
-
-const postQuad = new THREE.Mesh(
-  new THREE.PlaneGeometry(2, 2),
-  paletteMaterial
-);
-
-postScene.add(postQuad);
-
-/*
- * Palette controls
- */
+// palette controls
 const controls = document.createElement('div');
 controls.className = 'palette-controls';
 
@@ -156,28 +48,52 @@ controls.appendChild(swatchRow);
 
 document.body.appendChild(controls);
 
-const swatchInputs = [];
+// return the uniforms object for the Gaussian shader, or null if not available
+function getPaletteUniforms() {
+  return viewer.splatMesh?.material?.uniforms ?? null;
+}
 
+// copy palette colors from interface to the shader uniforms
+function syncPaletteUniforms() {
+  const uniforms = getPaletteUniforms();
+
+  if (!uniforms) {
+    return;
+  }
+
+  palette.forEach((color, index) => {
+    uniforms.nprPalette.value[index].copy(color);
+  });
+
+  const paletteIsReady = paletteConfigured.every(Boolean);
+
+  uniforms.nprPaletteEnabled.value =
+    paletteIsReady ? 1 : 0;
+
+  uniforms.nprPaletteStrength.value =
+    paletteIsReady ? 1.0 : 0.0;
+}
+
+// remapping enabled after all five colors are configured
 function updatePaletteState() {
-  const configuredCount = paletteConfigured.filter(
-    Boolean
-  ).length;
+  const configuredCount =
+    paletteConfigured.filter(Boolean).length;
 
-  const paletteIsReady = paletteConfigured.every(
-    Boolean
-  );
+  const paletteIsReady =
+    paletteConfigured.every(Boolean);
 
   if (paletteIsReady) {
-    paletteMaterial.uniforms.strength.value = 1.0;
-    instructions.textContent = '';
+    instructions.style.display = 'none';
   } else {
-    paletteMaterial.uniforms.strength.value = 0.0;
-
+    instructions.style.display = 'block';
     instructions.textContent =
       `Choose all five colors to apply (${configuredCount}/5)`;
   }
+
+  syncPaletteUniforms();
 }
 
+// editable color swatcches for frontend
 palette.forEach((_, index) => {
   const input = document.createElement('input');
 
@@ -203,50 +119,25 @@ palette.forEach((_, index) => {
       selectedColor.b
     );
 
-    /*
-     * Mark this slot as configured after the user edits it.
-     * The user can still choose white as an intentional color.
-     */
     paletteConfigured[index] = true;
 
     updatePaletteState();
   });
 
-  swatchInputs.push(input);
   swatchRow.appendChild(input);
 });
 
 updatePaletteState();
 
-/*
- * Render loop
- */
+// rendering loop
 function animate() {
   requestAnimationFrame(animate);
 
   viewer.update();
-
-  /*
-   * Render the original Gaussian scene into a texture.
-   */
-  viewer.renderer.setRenderTarget(renderTarget);
   viewer.render();
-
-  /*
-   * Render that texture through the palette shader.
-   * With strength zero, the original colors pass through.
-   */
-  viewer.renderer.setRenderTarget(null);
-
-  viewer.renderer.render(
-    postScene,
-    postCamera
-  );
 }
 
-/*
- * Load scene
- */
+// load the bonsai scene & start the viewer
 viewer
   .addSplatScene(
     '/models/bonsai_trimmed.ksplat',
@@ -262,6 +153,20 @@ viewer
   )
   .then(() => {
     console.log('Viewer ready:', viewer);
+
+    const uniforms = getPaletteUniforms();
+
+    if (
+      !uniforms?.nprPalette ||
+      !uniforms?.nprPaletteEnabled ||
+      !uniforms?.nprPaletteStrength
+    ) {
+      throw new Error(
+        'The custom DC-palette uniforms were not found. Rebuild the local renderer.'
+      );
+    }
+
+    syncPaletteUniforms();
     animate();
   })
   .catch((error) => {
@@ -270,16 +175,3 @@ viewer
       error
     );
   });
-
-/*
- * Keep the render target aligned with the browser viewport.
- */
-window.addEventListener('resize', () => {
-  const pixelRatio =
-    viewer.renderer.getPixelRatio();
-
-  renderTarget.setSize(
-    window.innerWidth * pixelRatio,
-    window.innerHeight * pixelRatio
-  );
-});

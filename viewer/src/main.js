@@ -229,10 +229,10 @@ function createRangeControl(labelText, initialValue) {
   return input;
 }
 
-createRangeControl('Abstraction', 74);
-createRangeControl('Stroke Scale', 45);
-createRangeControl('Directionality', 92);
-createRangeControl('Density', 18);
+createRangeControl('Abstraction', 0);
+createRangeControl('Stroke Scale', 0);
+createRangeControl('Directionality', 0);
+createRangeControl('Density', 0);
 
 // file controls
 const actionRow = document.createElement('div');

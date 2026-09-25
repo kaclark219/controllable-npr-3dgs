@@ -229,10 +229,58 @@ function createRangeControl(labelText, initialValue) {
   return input;
 }
 
-createRangeControl('Abstraction', 0);
-createRangeControl('Stroke Scale', 0);
-createRangeControl('Directionality', 0);
-createRangeControl('Density', 0);
+const abstractionInput =
+  createRangeControl('Abstraction', 0);
+
+const strokeScaleInput =
+  createRangeControl('Stroke Scale', 0);
+
+const directionalityInput =
+  createRangeControl('Directionality', 0);
+
+const densityInput =
+  createRangeControl('Density', 0);
+
+function resetSliders() {
+  [
+    abstractionInput,
+    strokeScaleInput,
+    directionalityInput,
+    densityInput,
+  ].forEach((input) => {
+    input.value = '0';
+
+    input.dispatchEvent(
+      new Event('input', {
+        bubbles: true,
+      })
+    );
+  });
+}
+
+function syncStrokeScale() {
+  if (!viewer.splatMesh?.material) {
+    return;
+  }
+
+  const sliderValue =
+    Number(strokeScaleInput.value) / 100;
+
+  const strokeScale = THREE.MathUtils.lerp(
+    1.0,
+    3.0,
+    sliderValue
+  );
+
+  viewer.splatMesh.setNprStrokeScale(
+    strokeScale
+  );
+}
+
+strokeScaleInput.addEventListener(
+  'input',
+  syncStrokeScale
+);
 
 // file controls
 const actionRow = document.createElement('div');
@@ -312,11 +360,15 @@ async function loadScene(path) {
   }
 
   syncPaletteUniforms();
+  syncStrokeScale();
 }
 
 async function resetScene() {
   await removeCurrentScene();
+
   resetPalette();
+  resetSliders();
+
   await loadScene(originalScenePath);
 }
 

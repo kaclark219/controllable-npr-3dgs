@@ -25,6 +25,7 @@ export class SplatMaterial3D {
             uniform highp sampler2D covariancesTexture;
             uniform highp usampler2D covariancesTextureHalfFloat;
             uniform int covariancesAreHalfFloat;
+            uniform float nprStrokeScale;
 
             void fromCovarianceHalfFloatV4(uvec4 val, out vec4 first, out vec4 second) {
                 vec2 r = unpackHalf2x16(val.r);
@@ -60,6 +61,10 @@ export class SplatMaterial3D {
         uniforms['covariancesAreHalfFloat'] = {
             'type': 'i',
             'value': 0
+        };
+        uniforms['nprStrokeScale'] = {
+            'type': 'f',
+            'value': 1.0
         };
 
         const material = new THREE.ShaderMaterial({
@@ -192,8 +197,23 @@ export class SplatMaterial3D {
             vec2 eigenVector2 = vec2(eigenVector1.y, -eigenVector1.x);
 
             // We use sqrt(8) standard deviations instead of 3 to eliminate more of the splat with a very low opacity.
-            vec2 basisVector1 = eigenVector1 * splatScale * min(sqrt8 * sqrt(eigenValue1), ${parseInt(maxScreenSpaceSplatSize)}.0);
-            vec2 basisVector2 = eigenVector2 * splatScale * min(sqrt8 * sqrt(eigenValue2), ${parseInt(maxScreenSpaceSplatSize)}.0);
+            vec2 basisVector1 =
+                eigenVector1 *
+                splatScale *
+                nprStrokeScale *
+                min(
+                    sqrt8 * sqrt(eigenValue1),
+                    ${parseInt(maxScreenSpaceSplatSize)}.0
+                );
+
+            vec2 basisVector2 =
+                eigenVector2 *
+                splatScale *
+                nprStrokeScale *
+                min(
+                    sqrt8 * sqrt(eigenValue2),
+                    ${parseInt(maxScreenSpaceSplatSize)}.0
+                );
             `;
 
         if (enableOptionalEffects) {

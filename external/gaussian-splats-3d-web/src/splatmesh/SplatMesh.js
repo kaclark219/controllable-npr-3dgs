@@ -1289,6 +1289,24 @@ export class SplatMesh extends THREE.Mesh {
         return this.splatScale;
     }
 
+    setNprStrokeScale(nprStrokeScale = 1.0) {
+        if (!this.material?.uniforms?.nprStrokeScale) {
+            return;
+        }
+
+        this.material.uniforms.nprStrokeScale.value =
+            Math.max(nprStrokeScale, 0.01);
+
+        this.material.uniformsNeedUpdate = true;
+    }
+
+    getNprStrokeScale() {
+        return (
+            this.material?.uniforms?.nprStrokeScale?.value ??
+            1.0
+        );
+    }
+
     setPointCloudModeEnabled(enabled) {
         this.pointCloudModeEnabled = enabled;
         this.material.uniforms.pointCloudModeEnabled.value = enabled ? 1 : 0;

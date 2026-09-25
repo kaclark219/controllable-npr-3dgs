@@ -1307,6 +1307,78 @@ export class SplatMesh extends THREE.Mesh {
         );
     }
 
+    setNprDirectionality(directionality = 0.0) {
+        if (!this.material?.uniforms?.nprDirectionality) {
+            return;
+        }
+
+        this.material.uniforms.nprDirectionality.value =
+            Math.min(
+                Math.max(directionality, 0.0),
+                1.0
+            );
+
+        this.material.uniformsNeedUpdate = true;
+    }
+
+    getNprDirectionality() {
+        return (
+            this.material
+                ?.uniforms
+                ?.nprDirectionality
+                ?.value ??
+            0.0
+        );
+    }
+
+    setNprDensity(density = 0.0) {
+        if (!this.material?.uniforms?.nprDensity) {
+            return;
+        }
+
+        this.material.uniforms.nprDensity.value =
+            Math.min(
+                Math.max(density, 0.0),
+                1.0
+            );
+
+        this.material.uniformsNeedUpdate = true;
+    }
+
+    getNprDensity() {
+        return (
+            this.material
+                ?.uniforms
+                ?.nprDensity
+                ?.value ??
+            0.0
+        );
+    }
+
+    setNprAbstraction(abstraction = 0.0) {
+        if (!this.material?.uniforms?.nprAbstraction) {
+            return;
+        }
+
+        this.material.uniforms.nprAbstraction.value =
+            Math.min(
+                Math.max(abstraction, 0.0),
+                1.0
+            );
+
+        this.material.uniformsNeedUpdate = true;
+    }
+
+    getNprAbstraction() {
+        return (
+            this.material
+                ?.uniforms
+                ?.nprAbstraction
+                ?.value ??
+            0.0
+        );
+    }
+
     setPointCloudModeEnabled(enabled) {
         this.pointCloudModeEnabled = enabled;
         this.material.uniforms.pointCloudModeEnabled.value = enabled ? 1 : 0;

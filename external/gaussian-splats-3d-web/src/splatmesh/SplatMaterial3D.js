@@ -26,6 +26,7 @@ export class SplatMaterial3D {
             uniform highp usampler2D covariancesTextureHalfFloat;
             uniform int covariancesAreHalfFloat;
             uniform float nprStrokeScale;
+            uniform float nprDirectionality;
 
             void fromCovarianceHalfFloatV4(uvec4 val, out vec4 first, out vec4 second) {
                 vec2 r = unpackHalf2x16(val.r);
@@ -65,6 +66,10 @@ export class SplatMaterial3D {
         uniforms['nprStrokeScale'] = {
             'type': 'f',
             'value': 1.0
+        };
+        uniforms['nprDirectionality'] = {
+            'type': 'f',
+            'value': 0.0
         };
 
         const material = new THREE.ShaderMaterial({
@@ -192,15 +197,38 @@ export class SplatMaterial3D {
 
             if (eigenValue2 <= 0.0) return;
 
-            vec2 eigenVector1 = normalize(vec2(b, eigenValue1 - a));
-            // since the eigen vectors are orthogonal, we derive the second one from the first
-            vec2 eigenVector2 = vec2(eigenVector1.y, -eigenVector1.x);
+            vec2 eigenVector1 =
+                normalize(vec2(b, eigenValue1 - a));
+
+            vec2 targetDirection = vec2(1.0, 0.0);
+
+            if (dot(eigenVector1, targetDirection) < 0.0) {
+                targetDirection *= -1.0;
+            }
+
+            eigenVector1 = normalize(
+                mix(
+                    eigenVector1,
+                    targetDirection,
+                    clamp(nprDirectionality, 0.0, 1.0)
+                )
+            );
+
+            vec2 eigenVector2 =
+                vec2(eigenVector1.y, -eigenVector1.x);
+
+            float nprAbstractionScale = mix(
+                1.0,
+                1.8,
+                clamp(nprAbstraction, 0.0, 1.0)
+            );
 
             // We use sqrt(8) standard deviations instead of 3 to eliminate more of the splat with a very low opacity.
             vec2 basisVector1 =
                 eigenVector1 *
                 splatScale *
                 nprStrokeScale *
+                nprAbstractionScale *
                 min(
                     sqrt8 * sqrt(eigenValue1),
                     ${parseInt(maxScreenSpaceSplatSize)}.0
@@ -210,6 +238,7 @@ export class SplatMaterial3D {
                 eigenVector2 *
                 splatScale *
                 nprStrokeScale *
+                nprAbstractionScale *
                 min(
                     sqrt8 * sqrt(eigenValue2),
                     ${parseInt(maxScreenSpaceSplatSize)}.0

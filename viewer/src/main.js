@@ -92,6 +92,7 @@ presetSelect.className = 'preset-select';
 presetSelect.setAttribute('aria-label', 'Style preset');
 
 [
+  'None',
   'Impressionism',
   'Watercolor',
   'Oil Paint',
@@ -282,6 +283,60 @@ strokeScaleInput.addEventListener(
   syncStrokeScale
 );
 
+function syncDirectionality() {
+  if (!viewer.splatMesh?.material) {
+    return;
+  }
+
+  const directionality =
+    Number(directionalityInput.value) / 100;
+
+  viewer.splatMesh.setNprDirectionality(
+    directionality
+  );
+}
+
+directionalityInput.addEventListener(
+  'input',
+  syncDirectionality
+);
+
+function syncDensity() {
+  if (!viewer.splatMesh?.material) {
+    return;
+  }
+
+  const density =
+    Number(densityInput.value) / 100;
+
+  viewer.splatMesh.setNprDensity(
+    density
+  );
+}
+
+densityInput.addEventListener(
+  'input',
+  syncDensity
+);
+
+function syncAbstraction() {
+  if (!viewer.splatMesh?.material) {
+    return;
+  }
+
+  const abstraction =
+    Number(abstractionInput.value) / 100;
+
+  viewer.splatMesh.setNprAbstraction(
+    abstraction
+  );
+}
+
+abstractionInput.addEventListener(
+  'input',
+  syncAbstraction
+);
+
 // file controls
 const actionRow = document.createElement('div');
 actionRow.className = 'action-row';
@@ -361,6 +416,9 @@ async function loadScene(path) {
 
   syncPaletteUniforms();
   syncStrokeScale();
+  syncDirectionality();
+  syncDensity();
+  syncAbstraction();
 }
 
 async function resetScene() {

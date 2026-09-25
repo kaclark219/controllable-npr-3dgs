@@ -13,6 +13,8 @@ export class SplatMaterial {
         uniform vec3 nprPalette[5];
         uniform float nprPaletteStrength;
         uniform int nprPaletteEnabled;
+        uniform float nprDensity;
+        uniform float nprAbstraction;
         uniform highp sampler2D sphericalHarmonicsTexture;
         uniform highp sampler2D sphericalHarmonicsTextureR;
         uniform highp sampler2D sphericalHarmonicsTextureG;
@@ -197,6 +199,37 @@ export class SplatMaterial {
                     closestPaletteColor,
                     nprPaletteStrength
                 );
+            }
+
+            float nprOpacityMultiplier = mix(
+                1.0,
+                2.0,
+                clamp(nprDensity, 0.0, 1.0)
+            );
+
+            vColor.a = clamp(
+                vColor.a * nprOpacityMultiplier,
+                0.0,
+                1.0
+            );
+
+            uint abstractionHash =
+                splatIndex * uint(1664525) +
+                uint(1013904223);
+
+            float abstractionSelector =
+                float(abstractionHash & uint(0x00FFFFFF)) /
+                16777215.0;
+
+            float keepProbability = mix(
+                1.0,
+                0.35,
+                clamp(nprAbstraction, 0.0, 1.0)
+            );
+
+            if (abstractionSelector > keepProbability) {
+                gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+                return;
             }
         `;
 
@@ -413,6 +446,14 @@ export class SplatMaterial {
             'nprPaletteEnabled': {
                 'type': 'i',
                 'value': 0
+            },
+            'nprDensity': {
+                'type': 'f',
+                'value': 0.0
+            },
+            'nprAbstraction': {
+                'type': 'f',
+                'value': 0.0
             },
             'sceneCenter': {
                 'type': 'v3',

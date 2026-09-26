@@ -1331,6 +1331,30 @@ export class SplatMesh extends THREE.Mesh {
         );
     }
 
+        setNprElongation(elongation = 0.0) {
+        if (!this.material?.uniforms?.nprElongation) {
+            return;
+        }
+
+        this.material.uniforms.nprElongation.value =
+            Math.min(
+                Math.max(elongation, 0.0),
+                1.0
+            );
+
+        this.material.uniformsNeedUpdate = true;
+    }
+
+    getNprElongation() {
+        return (
+            this.material
+                ?.uniforms
+                ?.nprElongation
+                ?.value ??
+            0.0
+        );
+    }
+
     setNprDensity(density = 0.0) {
         if (!this.material?.uniforms?.nprDensity) {
             return;

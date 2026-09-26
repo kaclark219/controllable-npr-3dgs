@@ -110,6 +110,67 @@ presetSelect.setAttribute('aria-label', 'Style preset');
 });
 
 presetControl.group.appendChild(presetSelect);
+const stylePresets = {
+  impressionism: {
+    palette: [
+      '#334c5c',
+      '#708c69',
+      '#d6ac67',
+      '#cc7861',
+      '#eee0bd',
+    ],
+    abstraction: 20,
+    strokeScale: 35,
+    directionality: 15,
+    density: 30,
+    elongation: 35,
+  },
+
+  watercolor: {
+    palette: [
+      '#526d82',
+      '#8ba6b2',
+      '#b8cdd0',
+      '#dbcdbd',
+      '#f0e9df',
+    ],
+    abstraction: 10,
+    strokeScale: 20,
+    directionality: 10,
+    density: 5,
+    elongation: 15,
+  },
+
+  'oil-paint': {
+    palette: [
+      '#302219',
+      '#65492f',
+      '#917044',
+      '#bd895f',
+      '#e3c49b',
+    ],
+    abstraction: 15,
+    strokeScale: 50,
+    directionality: 25,
+    density: 65,
+    elongation: 60,
+  },
+
+  woodblock: {
+    palette: [
+      '#17191c',
+      '#243c5a',
+      '#963735',
+      '#bd8250',
+      '#eee0bd',
+    ],
+    abstraction: 55,
+    strokeScale: 35,
+    directionality: 75,
+    density: 70,
+    elongation: 45,
+  },
+};
 
 // color palette
 const paletteControl = createControlGroup(
@@ -132,7 +193,7 @@ function resetPalette() {
     swatch.classList.remove('is-configured');
   });
 
-  syncPaletteUniforms();
+syncPaletteUniforms();
 }
 
 palette.forEach((_, index) => {
@@ -162,7 +223,7 @@ palette.forEach((_, index) => {
     paletteConfigured[index] = true;
     input.classList.add('is-configured');
 
-    syncPaletteUniforms();
+syncPaletteUniforms();
   });
 
   swatchRow.appendChild(input);
@@ -231,16 +292,19 @@ function createRangeControl(labelText, initialValue) {
 }
 
 const abstractionInput =
-  createRangeControl('Abstraction', 0);
+createRangeControl('Abstraction', 0);
 
 const strokeScaleInput =
-  createRangeControl('Stroke Scale', 0);
+createRangeControl('Stroke Scale', 0);
 
 const directionalityInput =
-  createRangeControl('Directionality', 0);
+createRangeControl('Directionality', 0);
 
 const densityInput =
-  createRangeControl('Density', 0);
+createRangeControl('Density', 0);
+
+const elongationInput =
+createRangeControl('Elongation', 0);
 
 function resetSliders() {
   [
@@ -248,6 +312,7 @@ function resetSliders() {
     strokeScaleInput,
     directionalityInput,
     densityInput,
+    elongationInput,
   ].forEach((input) => {
     input.value = '0';
 
@@ -265,7 +330,7 @@ function syncStrokeScale() {
   }
 
   const sliderValue =
-    Number(strokeScaleInput.value) / 100;
+Number(strokeScaleInput.value) / 100;
 
   const strokeScale = THREE.MathUtils.lerp(
     1.0,
@@ -289,7 +354,7 @@ function syncDirectionality() {
   }
 
   const directionality =
-    Number(directionalityInput.value) / 100;
+Number(directionalityInput.value) / 100;
 
   viewer.splatMesh.setNprDirectionality(
     directionality
@@ -307,7 +372,7 @@ function syncDensity() {
   }
 
   const density =
-    Number(densityInput.value) / 100;
+Number(densityInput.value) / 100;
 
   viewer.splatMesh.setNprDensity(
     density
@@ -325,7 +390,7 @@ function syncAbstraction() {
   }
 
   const abstraction =
-    Number(abstractionInput.value) / 100;
+Number(abstractionInput.value) / 100;
 
   viewer.splatMesh.setNprAbstraction(
     abstraction
@@ -336,6 +401,89 @@ abstractionInput.addEventListener(
   'input',
   syncAbstraction
 );
+
+function syncElongation() {
+  if (!viewer.splatMesh?.material) {
+    return;
+  }
+
+  const elongation =
+Number(elongationInput.value) / 100;
+
+  viewer.splatMesh.setNprElongation(
+    elongation
+  );
+}
+
+elongationInput.addEventListener(
+  'input',
+  syncElongation
+);
+
+function setSliderValue(input, value) {
+  input.value = String(value);
+
+  input.dispatchEvent(
+    new Event('input', {
+      bubbles: true,
+    })
+  );
+}
+
+function applyPreset(presetName) {
+  if (presetName === 'none') {
+resetPalette();
+resetSliders();
+    return;
+  }
+
+  const preset = stylePresets[presetName];
+
+  if (!preset) {
+    return;
+  }
+
+  preset.palette.forEach((hexColor, index) => {
+    const swatch = swatchRow.children[index];
+
+    swatch.value = hexColor;
+
+    swatch.dispatchEvent(
+      new Event('input', {
+        bubbles: true,
+      })
+    );
+  });
+
+setSliderValue(
+    abstractionInput,
+    preset.abstraction
+  );
+
+setSliderValue(
+    strokeScaleInput,
+    preset.strokeScale
+  );
+
+setSliderValue(
+    directionalityInput,
+    preset.directionality
+  );
+
+setSliderValue(
+  densityInput,
+  preset.density
+);
+
+setSliderValue(
+  elongationInput,
+  preset.elongation
+);
+}
+
+presetSelect.addEventListener('change', () => {
+applyPreset(presetSelect.value);
+});
 
 // file controls
 const actionRow = document.createElement('div');
@@ -419,10 +567,13 @@ async function loadScene(path) {
   syncDirectionality();
   syncDensity();
   syncAbstraction();
+  syncElongation();
 }
 
 async function resetScene() {
   await removeCurrentScene();
+
+  presetSelect.value = 'none';
 
   resetPalette();
   resetSliders();

@@ -27,6 +27,7 @@ export class SplatMaterial3D {
             uniform int covariancesAreHalfFloat;
             uniform float nprStrokeScale;
             uniform float nprDirectionality;
+            uniform float nprElongation;
 
             void fromCovarianceHalfFloatV4(uvec4 val, out vec4 first, out vec4 second) {
                 vec2 r = unpackHalf2x16(val.r);
@@ -68,6 +69,10 @@ export class SplatMaterial3D {
             'value': 1.0
         };
         uniforms['nprDirectionality'] = {
+            'type': 'f',
+            'value': 0.0
+        };
+        uniforms['nprElongation'] = {
             'type': 'f',
             'value': 0.0
         };
@@ -223,11 +228,18 @@ export class SplatMaterial3D {
                 clamp(nprAbstraction, 0.0, 1.0)
             );
 
+            float nprElongationScale = mix(
+                1.0,
+                3.0,
+                clamp(nprElongation, 0.0, 1.0)
+            );
+
             // We use sqrt(8) standard deviations instead of 3 to eliminate more of the splat with a very low opacity.
             vec2 basisVector1 =
                 eigenVector1 *
                 splatScale *
                 nprStrokeScale *
+                nprElongationScale *
                 nprAbstractionScale *
                 min(
                     sqrt8 * sqrt(eigenValue1),
@@ -243,8 +255,7 @@ export class SplatMaterial3D {
                     sqrt8 * sqrt(eigenValue2),
                     ${parseInt(maxScreenSpaceSplatSize)}.0
                 );
-            `;
-
+        `;
         if (enableOptionalEffects) {
             vertexShaderSource += `
                 vColor.a *= splatOpacityFromScene;

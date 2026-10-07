@@ -35,7 +35,7 @@ const viewer = new GaussianSplats3D.Viewer({
 
 window.gaussianViewer = viewer;
 
-const originalScenePath = '/models/bonsai_high.ksplat';
+const originalScenePath = '/models/garden.ksplat';
 
 const palette = Array.from(
   { length: 5 },
@@ -644,9 +644,33 @@ clearSceneButton.disabled = true;
 selectFileButton.disabled = true;
 
 loadScene(originalScenePath)
-  .then(() => {
+  // .then(() => {
+  //   console.log('Viewer ready:', viewer);
+  //   animate();
+  // })
+  .then(async () => {
     console.log('Viewer ready:', viewer);
     animate();
+
+    if (new URLSearchParams(window.location.search).get('evaluate') === '1') {
+      viewerPane.style.width = '1280px';
+      viewerPane.style.height = '720px';
+      viewerPane.style.flex = 'none';
+      viewerPane.style.minWidth = '1280px';
+      viewerPane.style.minHeight = '720px';
+      viewerPane.style.maxWidth = 'none';
+      viewerPane.style.maxHeight = 'none';
+
+      const { runControlFidelity } = await import('./control-fidelity.js');
+      window.controlFidelityResult = await runControlFidelity({
+        THREE,
+        viewer,
+        config: {
+          buildId: 'eval-garden-view03-2026-10-07',
+          seed: 219,
+        },
+      });
+    }
   })
   .catch((error) => {
     console.error(

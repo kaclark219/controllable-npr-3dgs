@@ -644,9 +644,33 @@ clearSceneButton.disabled = true;
 selectFileButton.disabled = true;
 
 loadScene(originalScenePath)
-  .then(() => {
+  // .then(() => {
+  //   console.log('Viewer ready:', viewer);
+  //   animate();
+  // })
+  .then(async () => {
     console.log('Viewer ready:', viewer);
     animate();
+
+    if (new URLSearchParams(window.location.search).get('evaluate') === '1') {
+      viewerPane.style.width = '1280px';
+      viewerPane.style.height = '720px';
+      viewerPane.style.flex = 'none';
+      viewerPane.style.minWidth = '1280px';
+      viewerPane.style.minHeight = '720px';
+      viewerPane.style.maxWidth = 'none';
+      viewerPane.style.maxHeight = 'none';
+
+      const { runControlFidelity } = await import('./control-fidelity.js');
+      window.controlFidelityResult = await runControlFidelity({
+        THREE,
+        viewer,
+        config: {
+          buildId: 'YOUR-GIT-COMMIT',
+          seed: 219,
+        },
+      });
+    }
   })
   .catch((error) => {
     console.error(

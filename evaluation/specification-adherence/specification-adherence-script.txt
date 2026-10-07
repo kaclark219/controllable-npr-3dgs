@@ -1,0 +1,21 @@
+Image A is the first attached image (0#_A).
+Image B is the second attached image (0#_B).
+
+Target description:
+[INSERT DESCRIPTION]
+
+Which image more closely matches the target description?
+
+Evaluate only the requested visual properties. Do not favor realism,
+sharpness, or aesthetic appeal unless explicitly requested.
+Do not infer parameter values or how the images were produced.
+
+Choose A, B, tie, or neither:
+- A: Image A matches better.
+- B: Image B matches better.
+- tie: Both match equally well.
+- neither: Neither adequately matches the description.
+
+Return:
+  choice: A|B|tie|neither,
+  reason: One sentence explaining the visible evidence.

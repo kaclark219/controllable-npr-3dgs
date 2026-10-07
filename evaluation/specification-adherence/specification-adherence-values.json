@@ -1,0 +1,130 @@
+{ 
+    "evaluation_pairs": [
+        {
+            "id": "test1-directionality",
+            "description": "Large, elongated strokes aligned horizontally.",
+            "property_tested": "directionality",
+            "target": {
+                "strokeScale": 80,
+                "elongation": 80,
+                "directionality": 100,
+                "abstraction": 0,
+                "density": 0,
+                "palette": null
+            },
+            "comparison": {
+                "strokeScale": 80,
+                "elongation": 80,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": null
+            }
+        },
+        {
+            "id": "test2-strokescale",
+            "description": "Small strokes that preserve fine scene detail.",
+            "property_tested": "strokeScale",
+            "target": {
+                "strokeScale": 0,
+                "elongation": 0,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": null
+            },
+            "comparison": {
+                "strokeScale": 100,
+                "elongation": 0,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": null
+            }
+        },
+        {
+            "id": "test3-abstraction",
+            "description": "Broad primitives with reduced fine detail.",
+            "property_tested": "abstraction",
+            "target": {
+                "strokeScale": 0,
+                "elongation": 0,
+                "directionality": 0,
+                "abstraction": 100,
+                "density": 0,
+                "palette": null
+            },
+            "comparison": {
+                "strokeScale": 0,
+                "elongation": 0,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": null
+            }
+        },
+        {
+            "id": "test4-palette",
+            "description": "Elongated strokes with a muted cool palette.",
+            "property_tested": "palette",
+            "target": {
+                "strokeScale": 30,
+                "elongation": 80,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": "cool"
+            },
+            "comparison": {
+                "strokeScale": 30,
+                "elongation": 80,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": "warm"
+            }
+        },
+        {
+            "id": "test5-strokescale",
+            "description": "Broad strokes with a warm palette.",
+            "property_tested": "strokeScale",
+            "target": {
+                "strokeScale": 80,
+                "elongation": 0,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": "warm"
+            },
+            "comparison": {
+                "strokeScale": 0,
+                "elongation": 0,
+                "directionality": 0,
+                "abstraction": 0,
+                "density": 0,
+                "palette": "warm"
+            }
+        },
+        {
+            "id": "test6-density",
+            "description": "Horizontal, elongated strokes with stronger opacity.",
+            "property_tested": "density",
+            "target": {
+                "strokeScale": 30,
+                "elongation": 80,
+                "directionality": 100,
+                "abstraction": 0,
+                "density": 100,
+                "palette": null
+            },
+            "comparison": {
+                "strokeScale": 30,
+                "elongation": 80,
+                "directionality": 100,
+                "abstraction": 0,
+                "density": 0,
+                "palette": null
+            }
+        }
+    ]
+}

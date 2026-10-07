@@ -982,12 +982,25 @@ export async function runControlFidelity({
       }
 
       const apply = (values, palette) => {
-        for (const [control, name] of Object.entries(names)) {
-          if (!uniforms[name]) continue;
+        const sliderIds = {
+          strokeScale: 'control-stroke-scale',
+          elongation: 'control-elongation',
+          directionality: 'control-directionality',
+          abstraction: 'control-abstraction',
+          density: 'control-density',
+        };
 
-          uniforms[name].value = control === 'strokeScale'
-            ? 1 + 2 * (values[control] ?? 0) / 100
-            : (values[control] ?? 0) / 100;
+        for (const control of Object.keys(names)) {
+          const input = document.getElementById(sliderIds[control]);
+
+          if (!input) {
+            throw new Error(`Missing slider: ${control}`);
+          }
+
+          input.value = String(values[control] ?? 0);
+          input.dispatchEvent(
+            new Event('input', { bubbles: true })
+          );
         }
 
         if (palette) {

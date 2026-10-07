@@ -268,8 +268,15 @@ function createRangeControl(labelText, initialValue) {
     if (valueInput.value === '') return;
 
     const value = Number(valueInput.value);
+
     if (Number.isFinite(value)) {
-      input.value = String(Math.max(0, Math.min(100, Math.round(value))));
+      input.value = String(
+        Math.max(0, Math.min(100, Math.round(value)))
+      );
+
+      input.dispatchEvent(
+        new Event('input', { bubbles: true })
+      );
     }
   });
 

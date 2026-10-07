@@ -23,7 +23,7 @@ panels = [
     ("density", "meanEffectiveVertexAlpha", "Density", "Mean vertex alpha"),
 ]
 
-colors = ["#286496", "#c36c28", "#388454"]
+colors = ["#578470", "#d35e44", "#e7b23a"]
 styles = ["-", "--", ":"]
 
 plt.rcParams.update({
@@ -34,7 +34,7 @@ plt.rcParams.update({
 })
 
 fig, axes = plt.subplots(
-    2, 3, figsize=(12, 7), constrained_layout=True
+    3, 2, figsize=(7, 12), constrained_layout=True
 )
 
 for ax, (control, metric, title, ylabel) in zip(

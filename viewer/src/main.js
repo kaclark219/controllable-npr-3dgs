@@ -35,7 +35,7 @@ const viewer = new GaussianSplats3D.Viewer({
 
 window.gaussianViewer = viewer;
 
-const originalScenePath = '/models/bonsai_trimmed.ksplat';
+const originalScenePath = '/models/bonsai_high.ksplat';
 
 const palette = Array.from(
   { length: 5 },
@@ -650,7 +650,7 @@ loadScene(originalScenePath)
   })
   .catch((error) => {
     console.error(
-      'Could not load Bonsai:',
+      'Could not load scene:',
       error
     );
   })

@@ -28,6 +28,12 @@ styles = ["-", "--", ":"]
 
 plt.rcParams.update({
     "font.size": 10,
+    "text.color": "#666667",
+    "axes.labelcolor": "#666667",
+    "axes.titlecolor": "#666667",
+    "axes.edgecolor": "#666667",
+    "xtick.color": "#666667",
+    "ytick.color": "#666667",
     "axes.spines.top": False,
     "axes.spines.right": False,
     "pdf.fonttype": 42,

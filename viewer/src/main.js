@@ -35,7 +35,7 @@ const viewer = new GaussianSplats3D.Viewer({
 
 window.gaussianViewer = viewer;
 
-const originalScenePath = '/models/garden.ksplat';
+const originalScenePath = '/models/kitchen.ksplat';
 
 const palette = Array.from(
   { length: 5 },

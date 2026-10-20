@@ -24,7 +24,7 @@ document.body.appendChild(app);
 const viewer = new GaussianSplats3D.Viewer({
   rootElement: viewerPane,
   cameraUp: [0, -1, -0.6],
-  initialCameraPosition: [-1, -4, 6],
+  initialCameraPosition: [-1, -4, 7],
   initialCameraLookAt: [0, 4, 0],
   sharedMemoryForWorkers: false,
   gpuAcceleratedSort: false,
@@ -35,7 +35,7 @@ const viewer = new GaussianSplats3D.Viewer({
 
 window.gaussianViewer = viewer;
 
-const originalScenePath = '/models/kitchen.ksplat';
+const originalScenePath = '/models/bicycle.ksplat';
 
 const palette = Array.from(
   { length: 5 },
@@ -651,34 +651,37 @@ clearSceneButton.disabled = true;
 selectFileButton.disabled = true;
 
 loadScene(originalScenePath)
-  .then(() => {
-    console.log('Viewer ready:', viewer);
-    animate();
-  })
-  // .then(async () => {
+  // .then(() => {
   //   console.log('Viewer ready:', viewer);
   //   animate();
-
-  //   if (new URLSearchParams(window.location.search).get('evaluate') === '1') {
-  //     viewerPane.style.width = '1280px';
-  //     viewerPane.style.height = '720px';
-  //     viewerPane.style.flex = 'none';
-  //     viewerPane.style.minWidth = '1280px';
-  //     viewerPane.style.minHeight = '720px';
-  //     viewerPane.style.maxWidth = 'none';
-  //     viewerPane.style.maxHeight = 'none';
-
-  //     const { runControlFidelity } = await import('./control-fidelity.js');
-  //     window.controlFidelityResult = await runControlFidelity({
-  //       THREE,
-  //       viewer,
-  //       config: {
-  //         buildId: 'eval-garden-view03-2026-10-07',
-  //         seed: 219,
-  //       },
-  //     });
-  //   }
   // })
+  .then(async () => {
+    console.log('Viewer ready:', viewer);
+    animate();
+
+    if (new URLSearchParams(window.location.search).get('evaluate') === '1') {
+      viewerPane.style.width = '1280px';
+      viewerPane.style.height = '720px';
+      viewerPane.style.flex = 'none';
+      viewerPane.style.minWidth = '1280px';
+      viewerPane.style.minHeight = '720px';
+      viewerPane.style.maxWidth = 'none';
+      viewerPane.style.maxHeight = 'none';
+
+      const { runControlFidelity } = await import('./control-fidelity.js');
+      window.controlFidelityResult = await runControlFidelity({
+        THREE,
+        viewer,
+        config: {
+          up: [0, -0.8574929257125443, -0.5144957554275266],
+          position: [-3.395495678027808, -1.9184316110972088, -2.543584483443569],
+          lookAt: [0.7260150222214184, 0.7858591684378742, 0.9531681503083577],
+          buildId: 'eval-bicycle-view03-2026-10-20',
+          seed: 219,
+        },
+      });
+    }
+  })
   .catch((error) => {
     console.error(
       'Could not load scene:',

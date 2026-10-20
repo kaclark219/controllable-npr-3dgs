@@ -1,30 +1,79 @@
 from pathlib import Path
+from matplotlib.lines import Line2D
 
 import pandas as pd
 import matplotlib.pyplot as plt
 
-files = {
-    "View 1": Path("view1/trials.csv"),
-    "View 2": Path("view2/trials.csv"),
-    "View 3": Path("view3/trials.csv"),
+scenes = {
+    "Garden": {
+        "folder": Path("garden"),
+        "color": "#578470",
+    },
+    "Kitchen": {
+        "folder": Path("kitchen"),
+        "color": "#d35e44",
+    },
+    "Bicycle": {
+        "folder": Path("bicycle"),
+        "color": "#e7b23a",
+    },
 }
 
-data = {
-    name: pd.read_csv(path)
-    for name, path in files.items()
+view_styles = {
+    "view1": "-",
+    "view2": "--",
+    "view3": ":",
 }
+
+data = []
+
+for scene, settings in scenes.items():
+    files = sorted(settings["folder"].glob("view*.csv"))
+
+    if not files:
+        raise FileNotFoundError(
+            f"No view CSV files found in {settings['folder']}"
+        )
+
+    for path in files:
+        view = path.stem.lower()
+
+        if view not in view_styles:
+            raise ValueError(f"Unknown viewpoint: {path.name}")
+
+        data.append({
+            "scene": scene,
+            "view": view,
+            "color": settings["color"],
+            "df": pd.read_csv(path),
+        })
 
 panels = [
-    ("strokeScale", "majorRatio", "Stroke scale", "Major axis / baseline"),
-    ("elongation", "aspectRatioRatio", "Elongation", "Aspect ratio / baseline"),
-    ("directionality", "horizontalDeviationDegrees", "Directionality", "Deviation from horizontal (degrees)"),
-    ("abstraction", "retainedSampleRatio", "Abstraction: retention", "Retained sample fraction"),
-    ("abstraction", "laplacianDetailProxy", "Abstraction: image detail", "Laplacian detail proxy"),
-    ("density", "meanEffectiveVertexAlpha", "Density", "Mean vertex alpha"),
+    (
+        "strokeScale", "majorRatio",
+        "Stroke scale", "Major axis / baseline"
+    ),
+    (
+        "elongation", "aspectRatioRatio",
+        "Elongation", "Aspect ratio / baseline"
+    ),
+    (
+        "directionality", "horizontalDeviationDegrees",
+        "Directionality", "Deviation from horizontal (degrees)"
+    ),
+    (
+        "abstraction", "retainedSampleRatio",
+        "Abstraction: retention", "Retained sample fraction"
+    ),
+    (
+        "abstraction", "laplacianDetailProxy",
+        "Abstraction: image detail", "Laplacian detail proxy"
+    ),
+    (
+        "density", "meanEffectiveVertexAlpha",
+        "Density", "Mean vertex alpha"
+    ),
 ]
-
-colors = ["#578470", "#d35e44", "#e7b23a"]
-styles = ["-", "--", ":"]
 
 plt.rcParams.update({
     "font.size": 10,
@@ -40,24 +89,40 @@ plt.rcParams.update({
 })
 
 fig, axes = plt.subplots(
-    3, 2, figsize=(7, 12), constrained_layout=True
+    3, 2, figsize=(7, 12)
 )
 
 for ax, (control, metric, title, ylabel) in zip(
     axes.flat, panels
 ):
-    for i, (name, df) in enumerate(data.items()):
+    for item in data:
+        df = item["df"]
+
         rows = df.loc[
             (df["kind"] == "sweep")
-            & (df["control"] == control)
-        ].sort_values("level")
+            & (df["control"] == control),
+            ["level", metric],
+        ].copy()
+
+        rows["level"] = pd.to_numeric(
+            rows["level"], errors="raise"
+        )
+        rows[metric] = pd.to_numeric(
+            rows[metric], errors="raise"
+        )
+        rows = rows.sort_values("level")
+
+        if rows.empty:
+            raise ValueError(
+                f"No {control} measurements for "
+                f"{item['scene']} {item['view']}"
+            )
 
         ax.plot(
             rows["level"],
             rows[metric],
-            label=name,
-            color=colors[i],
-            linestyle=styles[i],
+            color=item["color"],
+            linestyle=view_styles[item["view"]],
             linewidth=2,
         )
 
@@ -67,9 +132,43 @@ for ax, (control, metric, title, ylabel) in zip(
     ax.set_xticks(range(0, 101, 20))
     ax.grid(alpha=0.2)
 
-axes[0, 0].legend()
+scene_handles = [
+    Line2D(
+        [0], [0],
+        color=settings["color"],
+        linewidth=2,
+        label=scene,
+    )
+    for scene, settings in scenes.items()
+]
 
-fig.savefig("control-response-plots.pdf", bbox_inches="tight")
+present_views = sorted({item["view"] for item in data})
+
+view_handles = [
+    Line2D(
+        [0], [0],
+        color="#666667",
+        linestyle=view_styles[view],
+        linewidth=2,
+        label=f"View {view.removeprefix('view')}",
+    )
+    for view in present_views
+]
+
+fig.legend(
+    handles=scene_handles + view_handles,
+    loc="upper center",
+    bbox_to_anchor=(0.5, 0.995),
+    ncol=3,
+    frameon=False,
+)
+
+fig.tight_layout(rect=(0, 0, 1, 0.94))
+
+fig.savefig(
+    "control-response-plots.pdf",
+    bbox_inches="tight",
+)
 fig.savefig(
     "control-response-plots.png",
     dpi=300,

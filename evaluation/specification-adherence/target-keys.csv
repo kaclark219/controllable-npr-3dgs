@@ -71,4 +71,4 @@ id,test-id,target,model,choice,reason,correct
 05_C,test5-strokescale,false,gemini flash,D,"Image D features broader, heavily simplified strokes in a reddish-brown warm palette, whereas Image C contains finer detail and sharper edges.",true
 05_D,test5-strokescale,true,gemini flash,D,"Image D features broader, heavily simplified strokes in a reddish-brown warm palette, whereas Image C contains finer detail and sharper edges.",true
 06_C,test6-density,true,gemini flash,C,"Image C displays horizontal elongated streaks with higher contrast and stronger opacity, whereas Image D appears softer and more semi-transparent.",true
-06_D,test6-density,false,gemini flash,D,"Image D displays horizontal elongated streaks with lower contrast and weaker opacity, whereas Image C appears sharper and more defined.",true
+06_D,test6-density,false,gemini flash,C,"Image D displays horizontal elongated streaks with lower contrast and weaker opacity, whereas Image C appears sharper and more defined.",true

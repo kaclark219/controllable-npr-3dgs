@@ -1243,12 +1243,19 @@ export class Viewer {
             this.sortWorker.onmessage = (e) => {
                 if (e.data.sortDone) {
                     this.sortRunning = false;
+                    const sortedIndexes = this.sharedMemoryForWorkers ? this.sortWorkerSortedIndexes :
+                        new Uint32Array(e.data.sortedIndexes.buffer, 0, e.data.splatRenderCount);
                     if (this.sharedMemoryForWorkers) {
-                        this.splatMesh.updateRenderIndexes(this.sortWorkerSortedIndexes, e.data.splatRenderCount);
+                        if (!this.densitySortedBuffer || this.densitySortedBuffer.length < e.data.splatRenderCount) {
+                            this.densitySortedBuffer = new Uint32Array(e.data.splatRenderCount);
+                        }
+                        this.densitySortedBuffer.set(sortedIndexes.subarray(0, e.data.splatRenderCount));
+                        this.densitySortedIndexes = this.densitySortedBuffer.subarray(0, e.data.splatRenderCount);
                     } else {
-                        const sortedIndexes = new Uint32Array(e.data.sortedIndexes.buffer, 0, e.data.splatRenderCount);
-                        this.splatMesh.updateRenderIndexes(sortedIndexes, e.data.splatRenderCount);
+                        this.densitySortedIndexes = sortedIndexes;
                     }
+                    this.splatMesh.spatialDensity.invalidate();
+                    this.updateDensityRenderIndexes();
 
                     this.lastSplatSortCount = this.splatSortCount;
 
@@ -1307,7 +1314,23 @@ export class Viewer {
         return defaultMessage ? new Error(defaultMessage) : error;
     }
 
+    updateDensityRenderIndexes() {
+        if (!this.densitySortedIndexes || !this.camera) return;
+        this.splatMesh.spatialDensity.onChange ||= () => this.forceRenderNextFrame();
+        const filtered = this.splatMesh.filterRenderIndexesByDensity(
+            this.densitySortedIndexes, this.densitySortedIndexes.length, this.camera);
+        if (filtered !== this.densityRenderResult) {
+            this.splatMesh.updateRenderIndexes(filtered.indexes, filtered.count);
+            this.densityRenderResult = filtered;
+            this.forceRenderNextFrame();
+        }
+    }
+
     disposeSortWorker() {
+        this.densitySortedIndexes = null;
+        this.densityRenderResult = null;
+        this.densitySortedBuffer = null;
+        this.splatMesh.spatialDensity.dispose();
         if (this.sortWorker) this.sortWorker.terminate();
         this.sortWorker = null;
         this.sortPromise = null;
@@ -1636,6 +1659,7 @@ export class Viewer {
         this.runSplatSort();
         this.updateForRendererSizeChanges();
         this.updateSplatMesh();
+        this.updateDensityRenderIndexes();
         this.updateMeshCursor();
         this.updateFPS();
         this.timingSensitiveUpdates();

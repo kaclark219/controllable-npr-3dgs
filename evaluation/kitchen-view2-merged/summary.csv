@@ -1,0 +1,16 @@
+group,metric,levelsMeasured,spearman,constantResponse,responseRange,adjacentWrongDirectionSteps,formulaMAE
+current/view-3/strokeScale,majorRatio,11,1,false,2,0,3.7290740818495364e-8
+current/view-3/strokeScale,minorRatio,11,1,false,2,0,3.741619541470181e-8
+current/view-3/strokeScale,aspectRatioRatio,11,null,true,1.378859471046212e-9,0,2.6293991226757703e-10
+current/view-3/strokeScale,supportAreaRatio,11,1,false,8,0,1.5762078460616766e-7
+current/view-3/directionality,horizontalDeviationDegrees,11,-1,"false:""40.680141319292034""",0,null,
+current/view-3/abstraction,majorRatio,11,1,false,0.7999999542416711,"0:""3.731372679525371e-8""",
+current/view-3/abstraction,minorRatio,11,1,false,0.7999999518516143,0,3.6784672035656225e-8
+current/view-3/abstraction,retainedSampleRatio,11,-1,false,0.6437768240343348,0,null
+current/view-3/abstraction,laplacianDetailProxy,11,-0.990909090909091,false,0.00935874027818586,1,null
+current/view-3/elongation,majorRatio,11,1,false,2,0,3.7290740818495364e-8
+current/view-3/elongation,minorRatio,11,null,true,0,0,0
+current/view-3/elongation,aspectRatioRatio),11,1,false,2,0,3.729074075793774e-8
+current/view-3/elongation,supportAreaRatio,"11:""false""",2,0,3.7290740818495364e-8,,
+current/view-2/density,retainedGaussianFraction,11,1,false,0.5500970765874218,0,null
+current/view-2/density,occupiedCellCoverage,11,null,true,0,0,null

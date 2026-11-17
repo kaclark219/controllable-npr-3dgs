@@ -35,7 +35,7 @@ const viewer = new GaussianSplats3D.Viewer({
 
 window.gaussianViewer = viewer;
 
-const originalScenePath = '/models/bicycle.ksplat';
+const originalScenePath = '/models/kitchen.ksplat';
 
 const palette = Array.from(
   { length: 5 },
@@ -112,62 +112,34 @@ presetSelect.setAttribute('aria-label', 'Style preset');
 presetControl.group.appendChild(presetSelect);
 const stylePresets = {
   impressionism: {
-    palette: [
-      '#334c5c',
-      '#708c69',
-      '#d6ac67',
-      '#cc7861',
-      '#eee0bd',
-    ],
     abstraction: 20,
-    strokeScale: 35,
-    directionality: 15,
-    density: 30,
-    elongation: 35,
+    strokeScale: 20,
+    directionality: 50,
+    density: 60,
+    elongation: 60,
   },
 
   watercolor: {
-    palette: [
-      '#526d82',
-      '#8ba6b2',
-      '#b8cdd0',
-      '#dbcdbd',
-      '#f0e9df',
-    ],
     abstraction: 10,
     strokeScale: 20,
     directionality: 10,
-    density: 5,
+    density: 15,
     elongation: 15,
   },
 
   'oil-paint': {
-    palette: [
-      '#302219',
-      '#65492f',
-      '#917044',
-      '#bd895f',
-      '#e3c49b',
-    ],
-    abstraction: 15,
+    abstraction: 80,
     strokeScale: 50,
     directionality: 25,
     density: 65,
-    elongation: 60,
+    elongation: 0,
   },
 
   woodblock: {
-    palette: [
-      '#17191c',
-      '#243c5a',
-      '#963735',
-      '#bd8250',
-      '#eee0bd',
-    ],
     abstraction: 55,
     strokeScale: 35,
     directionality: 75,
-    density: 70,
+    density: 0,
     elongation: 45,
   },
 };
@@ -308,7 +280,8 @@ const directionalityInput =
 createRangeControl('Directionality', 0);
 
 const densityInput =
-createRangeControl('Density', 0);
+createRangeControl('Density', 100);
+densityInput.title = 'Spatially balanced Gaussian selection: 10–100% retained';
 
 const elongationInput =
 createRangeControl('Elongation', 0);
@@ -321,7 +294,7 @@ function resetSliders() {
     densityInput,
     elongationInput,
   ].forEach((input) => {
-    input.value = '0';
+    input.value = input === densityInput ? '100' : '0';
 
     input.dispatchEvent(
       new Event('input', {
@@ -439,7 +412,6 @@ function setSliderValue(input, value) {
 
 function applyPreset(presetName) {
   if (presetName === 'none') {
-resetPalette();
 resetSliders();
     return;
   }
@@ -450,17 +422,6 @@ resetSliders();
     return;
   }
 
-  preset.palette.forEach((hexColor, index) => {
-    const swatch = swatchRow.children[index];
-
-    swatch.value = hexColor;
-
-    swatch.dispatchEvent(
-      new Event('input', {
-        bubbles: true,
-      })
-    );
-  });
 
 setSliderValue(
     abstractionInput,
@@ -640,11 +601,15 @@ clearSceneButton.addEventListener(
 syncPaletteUniforms();
 
 // render loop
+let evaluationRunning = false;
+
 function animate() {
   requestAnimationFrame(animate);
 
-  viewer.update();
-  viewer.render();
+  if (!evaluationRunning) {
+    viewer.update();
+    viewer.render();
+  }
 }
 
 clearSceneButton.disabled = true;
@@ -668,18 +633,49 @@ loadScene(originalScenePath)
       viewerPane.style.maxWidth = 'none';
       viewerPane.style.maxHeight = 'none';
 
-      const { runControlFidelity } = await import('./control-fidelity.js');
-      window.controlFidelityResult = await runControlFidelity({
-        THREE,
-        viewer,
-        config: {
-          up: [0, -0.8574929257125443, -0.5144957554275266],
-          position: [-3.395495678027808, -1.9184316110972088, -2.543584483443569],
-          lookAt: [0.7260150222214184, 0.7858591684378742, 0.9531681503083577],
-          buildId: 'eval-bicycle-view03-2026-10-20',
-          seed: 219,
-        },
+      const { rerunDensityFromManifest } =
+        await import('./control-fidelity.js');
+
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.hidden = true;
+
+      document.body.appendChild(input);
+
+      const button = document.createElement('button');
+      button.textContent = 'Select Evaluation Manifest';
+      button.className = 'action-button';
+
+      controlPanel.appendChild(button);
+
+      const manifestFile = await new Promise((resolve) => {
+        button.addEventListener('click', () => {
+          input.click();
+        }, { once: true });
+
+        input.addEventListener('change', () => {
+          resolve(input.files?.[0] ?? null);
+          button.remove();
+          input.remove();
+        }, { once: true });
       });
+
+      if (!manifestFile) {
+        throw new Error('No manifest selected.');
+      }
+
+      evaluationRunning = true;
+
+      try {
+        window.controlFidelityResult = await rerunDensityFromManifest({
+          THREE,
+          viewer,
+          manifestFile,
+        });
+      } finally {
+        evaluationRunning = false;
+      }
     }
   })
   .catch((error) => {

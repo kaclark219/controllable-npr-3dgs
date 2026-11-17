@@ -9,7 +9,7 @@
                 "elongation": 80,
                 "directionality": 100,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": null
             },
             "comparison": {
@@ -17,7 +17,7 @@
                 "elongation": 80,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": null
             }
         },
@@ -30,7 +30,7 @@
                 "elongation": 0,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": null
             },
             "comparison": {
@@ -38,7 +38,7 @@
                 "elongation": 0,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": null
             }
         },
@@ -51,7 +51,7 @@
                 "elongation": 0,
                 "directionality": 0,
                 "abstraction": 100,
-                "density": 0,
+                "density": 100,
                 "palette": null
             },
             "comparison": {
@@ -59,7 +59,7 @@
                 "elongation": 0,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": null
             }
         },
@@ -72,7 +72,7 @@
                 "elongation": 80,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": "cool"
             },
             "comparison": {
@@ -80,7 +80,7 @@
                 "elongation": 80,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": "warm"
             }
         },
@@ -93,7 +93,7 @@
                 "elongation": 0,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": "warm"
             },
             "comparison": {
@@ -101,20 +101,20 @@
                 "elongation": 0,
                 "directionality": 0,
                 "abstraction": 0,
-                "density": 0,
+                "density": 100,
                 "palette": "warm"
             }
         },
         {
             "id": "test6-density",
-            "description": "Horizontal, elongated strokes with stronger opacity.",
+            "description": "Horizontal, elongated strokes with more densely distributed strokes.",
             "property_tested": "density",
             "target": {
                 "strokeScale": 30,
                 "elongation": 80,
                 "directionality": 100,
                 "abstraction": 0,
-                "density": 100,
+                "density": 80,
                 "palette": null
             },
             "comparison": {
@@ -122,7 +122,7 @@
                 "elongation": 80,
                 "directionality": 100,
                 "abstraction": 0,
-                "density": 0,
+                "density": 10,
                 "palette": null
             }
         }

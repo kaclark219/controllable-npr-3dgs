@@ -49,14 +49,14 @@ for scene, settings in scenes.items():
         })
 
 panels = [
-    (
-        "strokeScale", "majorRatio",
-        "Stroke scale", "Major axis / baseline"
-    ),
-    (
-        "elongation", "aspectRatioRatio",
-        "Elongation", "Aspect ratio / baseline"
-    ),
+    # (
+    #     "strokeScale", "majorRatio",
+    #     "Stroke scale", "Major axis / baseline"
+    # ),
+    # (
+    #     "elongation", "aspectRatioRatio",
+    #     "Elongation", "Aspect ratio / baseline"
+    # ),
     (
         "directionality", "horizontalDeviationDegrees",
         "Directionality", "Deviation from horizontal (degrees)"
@@ -65,10 +65,10 @@ panels = [
         "abstraction", "retainedSampleRatio",
         "Abstraction: retention", "Retained sample fraction"
     ),
-    (
-        "abstraction", "laplacianDetailProxy",
-        "Abstraction: image detail", "Laplacian detail proxy"
-    ),
+    # (
+    #     "abstraction", "laplacianDetailProxy",
+    #     "Abstraction: image detail", "Laplacian detail proxy"
+    # ),
     (
         "density", "meanEffectiveVertexAlpha",
         "Density", "Mean vertex alpha"
@@ -77,19 +77,19 @@ panels = [
 
 plt.rcParams.update({
     "font.size": 10,
-    "text.color": "#666667",
-    "axes.labelcolor": "#666667",
-    "axes.titlecolor": "#666667",
-    "axes.edgecolor": "#666667",
-    "xtick.color": "#666667",
-    "ytick.color": "#666667",
+    "text.color": "#000000",
+    "axes.labelcolor": "#000000",
+    "axes.titlecolor": "#000000",
+    "axes.edgecolor": "#000000",
+    "xtick.color": "#000000",
+    "ytick.color": "#000000",
     "axes.spines.top": False,
     "axes.spines.right": False,
     "pdf.fonttype": 42,
 })
 
 fig, axes = plt.subplots(
-    3, 2, figsize=(7, 12)
+    1, 3, figsize=(15, 4)
 )
 
 for ax, (control, metric, title, ylabel) in zip(
@@ -158,12 +158,16 @@ view_handles = [
 fig.legend(
     handles=scene_handles + view_handles,
     loc="upper center",
-    bbox_to_anchor=(0.5, 0.995),
-    ncol=3,
+    bbox_to_anchor=(0.5, 1.02),
+    ncol=6,
+    columnspacing=1.5,
+    handletextpad=0.5,
     frameon=False,
 )
 
-fig.tight_layout(rect=(0, 0, 1, 0.94))
+fig.subplots_adjust(top=0.8)
+
+fig.tight_layout(rect=(0, 0, 1, 0.9))
 
 fig.savefig(
     "control-response-plots.pdf",

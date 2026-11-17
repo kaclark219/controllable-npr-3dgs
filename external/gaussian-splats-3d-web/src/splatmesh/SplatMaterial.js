@@ -201,18 +201,6 @@ export class SplatMaterial {
                 );
             }
 
-            float nprOpacityMultiplier = mix(
-                1.0,
-                2.0,
-                clamp(nprDensity, 0.0, 1.0)
-            );
-
-            vColor.a = clamp(
-                vColor.a * nprOpacityMultiplier,
-                0.0,
-                1.0
-            );
-
             uint abstractionHash =
                 splatIndex * uint(1664525) +
                 uint(1013904223);
@@ -449,7 +437,7 @@ export class SplatMaterial {
             },
             'nprDensity': {
                 'type': 'f',
-                'value': 0.0
+                'value': 1.0
             },
             'nprAbstraction': {
                 'type': 'f',

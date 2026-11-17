@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SpatialDensity } from './SpatialDensity.js';
 import { SplatMaterial3D } from './SplatMaterial3D.js';
 import { SplatMaterial2D } from './SplatMaterial2D.js';
 import { SplatGeometry } from './SplatGeometry.js';
@@ -51,6 +52,8 @@ export class SplatMesh extends THREE.Mesh {
                 integerBasedDistancesComputation = false, antialiased = false, maxScreenSpaceSplatSize = 1024, logLevel = LogLevel.None,
                 sphericalHarmonicsDegree = 0, sceneFadeInRateMultiplier = 1.0, kernel2DSize = 0.3) {
         super(dummyGeometry, dummyMaterial);
+        this.nprDensity = 1.0;
+        this.spatialDensity = new SpatialDensity(16, 0.10);
 
         // Reference to a Three.js renderer
         this.renderer = undefined;
@@ -458,10 +461,8 @@ export class SplatMesh extends THREE.Mesh {
             };
         }
     }
-    /**
-     * Dispose all resources held by the splat mesh
-     */
     dispose() {
+        this.spatialDensity.dispose();
         this.disposeMeshData();
         this.disposeTextures();
         this.disposeSplatTree();
@@ -1355,28 +1356,24 @@ export class SplatMesh extends THREE.Mesh {
         );
     }
 
-    setNprDensity(density = 0.0) {
-        if (!this.material?.uniforms?.nprDensity) {
-            return;
+    setNprDensity(density = 1.0) {
+        this.nprDensity = Number.isFinite(density) ? THREE.MathUtils.clamp(density, 0, 1) : 1;
+        if (this.material?.uniforms?.nprDensity) {
+            this.material.uniforms.nprDensity.value = this.nprDensity;
+            this.material.uniformsNeedUpdate = true;
         }
-
-        this.material.uniforms.nprDensity.value =
-            Math.min(
-                Math.max(density, 0.0),
-                1.0
-            );
-
-        this.material.uniformsNeedUpdate = true;
     }
 
     getNprDensity() {
-        return (
-            this.material
-                ?.uniforms
-                ?.nprDensity
-                ?.value ??
-            0.0
-        );
+        return this.nprDensity;
+    }
+
+    filterRenderIndexesByDensity(sortedIndexes, renderSplatCount, camera) {
+        return this.spatialDensity.filter(sortedIndexes, renderSplatCount, camera, this, this.nprDensity);
+    }
+
+    getNprDensityStats() {
+        return this.spatialDensity.stats;
     }
 
     setNprAbstraction(abstraction = 0.0) {
